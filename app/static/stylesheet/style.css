@@ -1,0 +1,206 @@
+/*
+ * Globals
+ */
+
+/* Links */
+a,
+a:focus,
+a:hover {
+  color: #fff;
+}
+
+/* Custom default button */
+.btn-default,
+.btn-default:hover,
+.btn-default:focus {
+  color: #333;
+  text-shadow: none; /* Prevent inheritence from `body` */
+  background-color: #fff;
+  border: 1px solid #fff;
+}
+
+
+/*
+ * Base structure
+ */
+
+html,
+body {
+  height: 100%;
+  background-color: #fff;
+}
+body {
+  color: #312f2f;
+  text-align: center;
+  /* text-shadow: 0 1px 3px rgba(0,0,0,.5); */
+}
+
+/* Extra markup and styles for table-esque vertical and horizontal centering */
+.site-wrapper {
+  display: table;
+  width: 100%;
+  height: 600px;
+  background-color: #fff;
+  /*height: 100%; */
+  /*min-height: 100%;*/
+}
+.site-wrapper-inner {
+  display: table-cell;
+  vertical-align: top;
+}
+.cover-container {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Padding for spacing */
+.inner {
+  padding: 30px;
+}
+
+
+/*
+ * Header
+ */
+.masthead-brand {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.masthead-nav > li {
+  display: inline-block;
+}
+.masthead-nav > li + li {
+  margin-left: 20px;
+}
+.masthead-nav > li > a {
+  padding-right: 0;
+  padding-left: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff1493; /* IE8 proofing */
+  color: rgba(255, 20, 147,.75);
+  border-bottom: 2px solid transparent;
+}
+.masthead-nav > li > a:hover,
+.masthead-nav > li > a:focus {
+  background-color: transparent;
+  border-bottom-color: #a9a9a9;
+  border-bottom-color: rgba(255,255,255,.25);
+}
+.masthead-nav > .active > a,
+.masthead-nav > .active > a:hover,
+.masthead-nav > .active > a:focus {
+  color: #ff1458;
+  border-bottom-color: #fff;
+}
+
+@media (min-width: 768px) {
+  .masthead-brand {
+    float: left;
+  }
+  .masthead-nav {
+    float: right;
+  }
+}
+
+
+/*
+ * Cover
+ */
+
+.cover {
+  padding: 0 20px;
+}
+.cover .btn-lg {
+  padding: 10px 20px;
+  font-weight: bold;
+}
+
+/*
+ * Affix and center
+ */
+
+@media (min-width: 768px) {
+  /* Pull out the header and footer */
+  .masthead {
+    position: fixed;
+    top: 0;
+  }
+  /* Start the vertical centering */
+  .site-wrapper-inner {
+    vertical-align: middle;
+  }
+
+}
+
+.play{
+  border: 1px solid #ebebeb;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.hand{
+
+    margin: 15% 0;
+    padding-right: 1px;
+    padding-left: 1px;
+}
+.flip{
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateX(-50%)  translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+.hisscore{
+  background-color: #e00079;
+}
+.myscore{
+  background-color: #00e067;
+}
+.btn-container{
+  display: flex;
+  justify-content: space-between;
+}
+.rock-paper-scissors_btn{
+  background-color: rgba(0,0,0,0);
+  border-width: 0px;
+}
+.rock-paper-scissors_btn:focus{
+  outline: 0px dotted;
+  outline: 0px auto -webkit-focus-ring-color;
+
+}
+
+.rock-paper-scissors_btn svg {
+    color: #000;
+    height: 70px;
+    pointer-events: none;
+
+}
+
+.rock-paper-scissors_disp svg {
+    color: #000;
+    height: 50px;
+    pointer-events: none;
+
+}
+
+.win{
+  font-size:20px;
+  color:#00e067;
+}
+.draw{
+  font-size:20px;
+  color:#312f2f;
+}
+.loss{
+  font-size:20px;
+  color:#e62649;
+}

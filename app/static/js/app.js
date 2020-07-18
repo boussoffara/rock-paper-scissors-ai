@@ -10,9 +10,7 @@ var history= new Array();
 var alg=[nash,dt,send_server,markov];
 var current_alg=0;
 history[0]=["r","r"];
-var jqxhr = $.getJSON( "/static/data/model.json", function() {
-console.log( "success" );
-});
+var jqxhr = $.getJSON( "/static/data/model.json");
 
 function argMax(array) {
   return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
@@ -181,10 +179,8 @@ function markov(me){
             next_state= jqxhr.responseJSON.distributions[1].table[i][1].toLowerCase();
             outcome=play(next_state[0],next_state[1]);
             if(outcome[0]==1){
-              console.log( jqxhr.responseJSON.distributions[1].table[i][2]);
               expected[next_state[0].toUpperCase()]-=parseFloat(jqxhr.responseJSON.distributions[1].table[i][2]);
             } else if (outcome[2]==1){
-              console.log( jqxhr.responseJSON.distributions[1].table[i][2]);
               expected[next_state[0].toUpperCase()]+=parseFloat(jqxhr.responseJSON.distributions[1].table[i][2]);
             }
 

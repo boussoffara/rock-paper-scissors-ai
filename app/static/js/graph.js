@@ -1,4 +1,5 @@
 
+function plot_dt(){
         var graph = new joint.dia.Graph;
         var holder= $("#myholder");
 
@@ -81,3 +82,94 @@
         link6.source(rect4);
         link6.target(rect6);
         link6.addTo(graph);
+}
+
+
+function plot_markov(){
+        possible_states= ["RS","RP","RR","SP","SR","SS","PS","PR","PP"];
+        var graph = new joint.dia.Graph;
+        var holder= $("#myholder");
+
+        var paper = new joint.dia.Paper({
+            el: holder,
+            model: graph,
+            width: holder.width(),
+            height: 300,
+            gridSize: 1
+        });
+
+        var rect = new joint.shapes.standard.Rectangle();
+        rect.position(holder.width()/18, 100);
+        rect.resize(60, 40);
+        rect.attr({
+            body: {
+                fill: 'white',
+                rx: 2,
+                ry: 2,
+                strokeWidth: 1,
+            },
+            label: {
+                text: possible_states[0],
+                fill: '#312f2f'
+            }
+        });
+        rect.addTo(graph);
+
+
+        var input_states=[];
+        input_states.push(rect);
+        var i=1;
+        for (i = 1; i<9; i++) {
+          input_states.push(rect.clone());
+          input_states[i].translate(i*1.85*holder.width()/18, 0);
+          input_states[i].attr('label/text', possible_states[i]);
+          input_states[i].addTo(graph);
+      }
+
+      var output_states=[];
+      var i=1;
+      for (i = 0; i<3; i++) {
+        output_states.push(rect.clone());
+        if (i %2==0){
+          output_states[i].translate((i+1)*3.5*holder.width()/18,150);
+        }else{
+          output_states[i].translate((i+1)*3.5*holder.width()/18,-100);
+        }
+
+        output_states[i].attr('label/text', possible_states[i]);
+        output_states[i].addTo(graph);
+    }
+    var links=[];
+
+
+
+
+
+
+
+    var j=0;
+    var i=0;
+    for (i = 0; i<9; i++) {
+      for (j = 0; j<3; j++) {
+      var link6 = new joint.shapes.standard.Link();
+      link6.attr(    {
+        line: {
+            connection: true,
+            stroke: '#333333',
+            strokeWidth: 2,
+            strokeLinejoin: 'round',
+            targetMarker: {
+                'type': 'path',
+                'd': 'M 10 -5 0 0 10 5 z'
+            }
+        }})
+      link6.source(input_states[i]);
+      link6.target(output_states[j]);
+      link6.addTo(graph);
+      links.push(link6);
+  }}
+
+
+
+
+}

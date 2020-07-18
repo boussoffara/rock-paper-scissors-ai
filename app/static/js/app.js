@@ -7,7 +7,7 @@ var p1=0;
 var p2=0;
 var him="r";
 var history= new Array();
-var alg=[nash,dt,markov]
+var alg=[nash,dt,send_server,markov];
 var current_alg=0;
 history[0]=["r","r"];
 var jqxhr = $.getJSON( "/static/data/model.json", function() {
@@ -142,31 +142,33 @@ function play_prev(p){
   }
 }
 
-function nash(){
-  return randomChoice(['p','r','s']);
+function nash(me){
+  him= randomChoice(['p','r','s']);
+  update_ui(me,him);
 }
 
-function dt(){
+function dt(me){
 
   previous= history[rounds];
   previous_results =play(previous[0],previous[1]);
   previous_me=previous[0];
   if (previous_results[0] == 1){
-    return play_next(previous_me);
+    him= play_next(previous_me);
   }else if (previous_results[2] == 1){
-    return play_him(previous[1]);
+    him= play_him(previous[1]);
   }else{
-    return play_next(previous_me);
+    him= play_next(previous_me);
   }
+  update_ui(me,him);
 
 }
 
-function markov(){
+function markov(me){
 
       var init= jqxhr.responseJSON.distributions[0].parameters[0];
       if (rounds==0){
         var plays = ['p','r','s'];
-        return plays[argMax([init["PR"]-init["PS"], init["RS"]-init["RP"],  init["SP"]-init["SR"]])];
+        him= plays[argMax([init["PR"]-init["PS"], init["RS"]-init["RP"],  init["SP"]-init["SR"]])];
 
       }else{
         var expected = {"R":0,"P":0,"S":0};
@@ -191,8 +193,19 @@ function markov(){
           }
       }
       console.log( expected);
-      return Object.keys(expected).reduce((a, b) => expected[a] > expected[b] ? a : b).toLowerCase();
+      him= Object.keys(expected).reduce((a, b) => expected[a] > expected[b] ? a : b).toLowerCase();
+
       }
+      update_ui(me,him);
+}
+
+function send_server(me){
+    var req=$.ajax({
+      url:'/play',
+      type:'POST',
+      data: {me:me}
+    });
+    req.done(function(data){update_ui(me,data["him"]);} );
 
 }
 
@@ -206,17 +219,16 @@ function set_alg(id){
 
 }
 
+
+
 $( "#button-paper" ).click(function() {
-   him=alg[current_alg]();
-   update_ui("p",him);
+   alg[current_alg]("p");
 });
 $( "#button-rock" ).click(function() {
-  him=alg[current_alg]();
-  update_ui("r",him);
+  alg[current_alg]("r");
 });
 $( "#button-scissors" ).click(function() {
-  him=alg[current_alg]();
-  update_ui("s",him);
+  alg[current_alg]("s");
 });
 
 document.onkeydown = checkKey;
@@ -226,16 +238,14 @@ function checkKey(e) {
     e = e || window.event;
 
 if (e.keyCode == '40') {
-      him=alg[current_alg]();
-      update_ui("p",him);
+      alg[current_alg]("p");
 
     }
     else if (e.keyCode == '37') {
-      him=alg[current_alg]();
-      update_ui("r",him);
+      alg[current_alg]("r");
     }
     else if (e.keyCode == '39') {
-      him=alg[current_alg]();
-      update_ui("s",him);
+      alg[current_alg]("s");
     }
 }
+plot_dt();

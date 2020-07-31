@@ -1,13 +1,13 @@
-import random
+from random import choice
 import itertools
 
 beat = {"R": "P", "P": "S", "S": "R"}
 
 
 class MarkovChain:
-    def __init__(self, type, beat, level, memory, score=0, score_mem=0.9):
+    def __init__(self, type, level, memory, score=0, score_mem=0.9):
         self.type = type
-        self.matrix = self.create_matrix(beat, level, memory)
+        self.matrix = self.create_matrix(level, memory)
         self.memory = memory
         self.level = level
         self.beat = beat
@@ -18,25 +18,29 @@ class MarkovChain:
         self.last_updated_key = ""
 
     @staticmethod
-    def create_matrix(beat, level, memory):
+    def create_matrix(level, memory):
         def create_keys(beat, level):
-            keys = list(beat)
+            key_list = list(beat)
 
             if level > 1:
 
                 for i in range(level - 1):
-                    key_len = len(keys)
-                    for i in itertools.product(keys, "".join(beat)):
-                        keys.append("".join(i))
-                    keys = keys[key_len:]
+                    key_len = len(key_list)
+                    for j in itertools.product(key_list, "".join(beat)):
+                        key_list.append("".join(j))
+                    key_list = key_list[key_len:]
 
-            return keys
+            return key_list
 
         keys = create_keys(beat, level)
 
         matrix = {}
         for key in keys:
-            matrix[key] = {"R": 1 / (1 - memory) / 3, "P": 1 / (1 - memory) / 3, "S": 1 / (1 - memory) / 3}
+            matrix[key] = {
+                "R": 1 / (1 - memory) / 3,
+                "P": 1 / (1 - memory) / 3,
+                "S": 1 / (1 - memory) / 3,
+            }
 
         return matrix
 
@@ -62,7 +66,7 @@ class MarkovChain:
         probs = self.matrix[key_current]
 
         if max(probs.values()) == min(probs.values()):
-            self.prediction = random.choice(list(beat.keys()))
+            self.prediction = choice(list(beat.keys()))
         else:
             self.prediction = max([(i[1], i[0]) for i in probs.items()])[1]
 
@@ -73,7 +77,7 @@ class MarkovChain:
 
 
 class Ensembler:
-    def __init__(self, type, beat, min_score=-10, score=0, score_mem=0.9):
+    def __init__(self, type, min_score=-10, score=0, score_mem=0.9):
         self.type = type
         self.matrix = {i: 0 for i in beat}
         self.beat = beat
@@ -100,7 +104,7 @@ class Ensembler:
     def predict(self):
 
         if max(self.matrix.values()) == min(self.matrix.values()):
-            self.prediction = random.choice(list(beat.keys()))
+            self.prediction = choice(list(beat.keys()))
         else:
             self.prediction = max([(i[1], i[0]) for i in self.matrix.items()])[1]
 
@@ -129,18 +133,36 @@ class HistoryColl:
 
 history = HistoryColl()
 
-memory = [0.5, 0.6, 0.7, 0.8, 0.9, 0.93, 0.95, 0.97, 0.99]
-level = [1, 2, 3, 4, 5]
+memories = [0.5, 0.6, 0.7, 0.8, 0.9, 0.93, 0.95, 0.97, 0.99]
+levels = [1, 2, 3, 4, 5]
 ensemble_min_score = [5]
 
-models_inp = [MarkovChain("input_oriented", beat, i[0], i[1]) for i in itertools.product(level, memory)]
-models_out = [MarkovChain("output_oriented", beat, i[0], i[1]) for i in itertools.product(level, memory)]
-models_ens = [Ensembler("ensemble", beat, i) for i in ensemble_min_score]
+models_inp = [
+    MarkovChain("input_oriented", i[0], i[1])
+    for i in itertools.product(levels, memories)
+]
+models_out = [
+    MarkovChain("output_oriented", i[0], i[1])
+    for i in itertools.product(levels, memories)
+]
+models_ens = [Ensembler("ensemble", i) for i in ensemble_min_score]
 output = ""
 models = models_inp + models_out + models_ens
 
 
-def player(input, output, history, memory, level, ensemble_min_score, models_inp, models_out, models_ens, models):
+def player(
+    input,
+    output,
+    history,
+    memory,
+    level,
+    ensemble_min_score,
+    models_inp,
+    models_out,
+    models_ens,
+    models,
+):
+    predicted_input = ""
     if len(history.history) == 10:
 
         history.hist_collector(input, output)
@@ -165,7 +187,9 @@ def player(input, output, history, memory, level, ensemble_min_score, models_inp
             elif model.type == "ensemble":
                 for mod in models:
                     if mod.type in ("input_oriented", "output_oriented"):
-                        model.update_matrix(mod.matrix[mod.last_updated_key], model.score)
+                        model.update_matrix(
+                            mod.matrix[mod.last_updated_key], model.score
+                        )
 
             if model.type in ("input_oriented", "output_oriented"):
                 predicted_input = model.predict(key_curr)
@@ -178,9 +202,9 @@ def player(input, output, history, memory, level, ensemble_min_score, models_inp
                 output = beat[predicted_input]
 
         if max_score < 1:
-            output = random.choice(list(beat.keys()))
+            output = choice(list(beat.keys()))
 
     else:
         history.hist_collector(input, output)
-        output = random.choice(list(beat.keys()))
+        output = choice(list(beat.keys()))
     return output

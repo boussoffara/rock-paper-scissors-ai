@@ -170,19 +170,19 @@ def player(
         max_score = 0
 
         for model in models:
+            if model.prediction != "":
+                model.update_score(input, beat[model.prediction])
 
             if model.type in ("input_oriented", "output_oriented"):
                 key_hist, inp_latest, out_latest = history.create_keys_hist(model.level)
                 key_curr = history.create_keys(model.level)
 
-            if model.prediction != "":
-                model.update_score(input, beat[model.prediction])
+                if model.type == "input_oriented":
+                    model.update_matrix(key_hist, inp_latest)
 
-            if model.type == "input_oriented":
-                model.update_matrix(key_hist, inp_latest)
-
-            elif model.type == "output_oriented":
-                model.update_matrix(key_hist, out_latest)
+                elif model.type == "output_oriented":
+                    model.update_matrix(key_hist, out_latest)
+                predicted_input = model.predict(key_curr)
 
             elif model.type == "ensemble":
                 for mod in models:
@@ -190,10 +190,6 @@ def player(
                         model.update_matrix(
                             mod.matrix[mod.last_updated_key], model.score
                         )
-
-            if model.type in ("input_oriented", "output_oriented"):
-                predicted_input = model.predict(key_curr)
-            elif model.type == "ensemble":
                 predicted_input = model.predict()
 
             if model.score > max_score:

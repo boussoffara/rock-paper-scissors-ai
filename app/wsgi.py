@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from app import app
+from apps import app
 
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

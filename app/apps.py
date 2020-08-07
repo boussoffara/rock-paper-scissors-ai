@@ -3,7 +3,18 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask import send_from_directory
 import random
-from ai import player, history, memories, levels, ensemble_min_score, models_inp, models_out, models_ens, models
+from ai import (
+    player,
+    history,
+    memories,
+    levels,
+    ensemble_min_score,
+    models_inp,
+    models_out,
+    models_ens,
+    models,
+)
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -26,8 +37,8 @@ def play():
             request.form["me"].upper(),
             first,
             history,
-            memory,
-            level,
+            memories,
+            levels,
             ensemble_min_score,
             models_inp,
             models_out,
@@ -41,8 +52,8 @@ def play():
             request.form["me"].upper(),
             output,
             history,
-            memory,
-            level,
+            memories,
+            levels,
             ensemble_min_score,
             models_inp,
             models_out,
@@ -51,14 +62,13 @@ def play():
         )
         return jsonify({"him": ret.lower()})
 
-    print(history.history)
-    return jsonify({"him": output.lower()})
-
 
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(
-        path.join(app.root_path, "static"), "favicon.ico", mimetype='image/vnd.microsoft.icon'
+        path.join(app.root_path, "static"),
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
     )
 
 

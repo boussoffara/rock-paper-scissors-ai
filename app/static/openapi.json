@@ -1,0 +1,1269 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "EasyMedStat internal API",
+    "description" : "EasyMedStat internal API intended to create a communication channel between the PHP website and the Python microservices\n[https://www.easymedstat.com](www.easymedstat.com)\n",
+    "termsOfService" : "https://www.easymedstat.com/terms/",
+    "contact" : {
+      "email" : "contact@easymedstat.com"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://virtserver.swaggerhub.com/easymedstat/ems_ms/1.0.0",
+    "description" : "SwaggerHub API Auto Mocking"
+  }, {
+    "url" : "https://private.dev.m3dstat.com/api/",
+    "description" : "Dev API"
+  }, {
+    "url" : "https://private.easymedstat.com/api/",
+    "description" : "Production API"
+  } ],
+  "tags" : [ {
+    "name" : "DataSets",
+    "description" : "Manage datasets"
+  }, {
+    "name" : "Stats",
+    "description" : "Perform statistical tests"
+  }, {
+    "name" : "Charts",
+    "description" : "Generate charts"
+  }, {
+    "name" : "Import",
+    "description" : "Import and curate user files"
+  }, {
+    "name" : "ExportTable",
+    "description" : "Export generated tables as DOC files"
+  } ],
+  "paths" : {
+    "/ExportTable" : {
+      "post" : {
+        "tags" : [ "ExportTable" ],
+        "summary" : "Export generated tables as doc files",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExportTable"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Document successfuly generated",
+            "content" : {
+              "document/doc" : {
+                "schema" : {
+                  "type" : "string",
+                  "description" : "The DOC file in binary format",
+                  "format" : "binary"
+                }
+              }
+            }
+          },
+          "204" : {
+            "description" : "Table is empty"
+          },
+          "422" : {
+            "description" : "Invalid table content"
+          }
+        }
+      }
+    },
+    "/datasets" : {
+      "post" : {
+        "tags" : [ "DataSets" ],
+        "summary" : "Add a new Dataset",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DataSet"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "DataSet was created successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string",
+                  "description" : "The data_id",
+                  "example" : "1234_202005032032"
+                }
+              }
+            }
+          },
+          "204" : {
+            "description" : "Dataset is empty"
+          },
+          "422" : {
+            "description" : "Invalid input"
+          }
+        }
+      }
+    },
+    "/datasets/{id}" : {
+      "get" : {
+        "tags" : [ "DataSets" ],
+        "summary" : "Retrieve a DataSet",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "customer_123123123"
+        }, {
+          "name" : "access_token",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "thai0eitei6Reihe"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The DataSet was found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DataSet"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "No DataSet with that id was found"
+          }
+        }
+      }
+    },
+    "/charts" : {
+      "post" : {
+        "tags" : [ "Charts" ],
+        "summary" : "Generates a chart",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/Chart"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "The Chart was created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Chart"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The dataset_access_token was invalid"
+          },
+          "404" : {
+            "description" : "The dataset with the request ID was not found"
+          },
+          "422" : {
+            "description" : "The provided parameters were not valid"
+          }
+        }
+      }
+    },
+    "/charts/{id}.{format}" : {
+      "get" : {
+        "tags" : [ "Charts" ],
+        "summary" : "Fetch a chart",
+        "description" : "The `.format` parameter can be omitted, in which case json will be returned. But .png can be used to fetch the png rendering of the chart",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "chart_projx_f2u2h0297fflol"
+        }, {
+          "name" : "format",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "json",
+            "enum" : [ "json", "png" ]
+          }
+        }, {
+          "name" : "access_token",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "thai0eitei6Reihe"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The Chart was found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Chart"
+                }
+              },
+              "image/png" : {
+                "schema" : {
+                  "type" : "string",
+                  "description" : "The binary PNG image",
+                  "format" : "binary"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The dataset_access_token was invalid"
+          },
+          "404" : {
+            "description" : "The dataset with the request ID was not found"
+          }
+        }
+      }
+    },
+    "/charts/{chart_name}/{template_id}/{resolution}/{dataset_id}/{dataset_token}" : {
+      "get" : {
+        "tags" : [ "Obsolete" ],
+        "summary" : "Generates a chart",
+        "description" : "Returns the binary output of the generated chart image",
+        "parameters" : [ {
+          "name" : "chart_name",
+          "in" : "path",
+          "description" : "Name of the chart to be drawed",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/ChartType"
+          }
+        }, {
+          "name" : "template_id",
+          "in" : "path",
+          "description" : "Template to be applied to the chart",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "resolution",
+          "in" : "path",
+          "description" : "Output resolution in dpi",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/ChartResolution"
+          }
+        }, {
+          "name" : "dataset_id",
+          "in" : "path",
+          "description" : "The id of the DataSet to be charted",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "dataset_token",
+          "in" : "path",
+          "description" : "The access token associated with the requested DataSet",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Chart successfuly generated",
+            "content" : {
+              "image/png" : {
+                "schema" : {
+                  "type" : "string",
+                  "description" : "The png image in binary format",
+                  "format" : "binary"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid status value"
+          },
+          "401" : {
+            "description" : "Unauthorized access"
+          },
+          "404" : {
+            "description" : "DataSet, Chart or template not defined"
+          }
+        }
+      }
+    },
+    "/stats/test/{name}" : {
+      "post" : {
+        "tags" : [ "Stats" ],
+        "summary" : "Statistical test",
+        "description" : "Executes a statistical test on a data_id or a dataset and returns the results of the test",
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "path",
+          "description" : "the statistical test to be executed",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/StatisticalTestName"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StatisticalTestQuery"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "test successfully executed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StatisticalTestResult"
+                }
+              }
+            }
+          },
+          "204" : {
+            "description" : "Empty dataset"
+          },
+          "401" : {
+            "description" : "The access token provided is invalid"
+          },
+          "404" : {
+            "description" : "Unknown data_id or statistical test"
+          }
+        }
+      }
+    },
+    "/datafile" : {
+      "post" : {
+        "tags" : [ "Import" ],
+        "summary" : "Upload a new datafile for cleaning and import",
+        "requestBody" : {
+          "description" : "The uploaded DataFile content",
+          "content" : {
+            "text/csv" : { }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "The file was uploaded successfully. Identification and cleaning can start",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DataFile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datafile/{id}" : {
+      "get" : {
+        "tags" : [ "Import" ],
+        "summary" : "Get the DataFile content",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string",
+            "example" : "df_projX_qwef994"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The DataFile object was sucessfully updated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DataFile"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The DataFile with the given ID wasn't found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Import" ],
+        "summary" : "Update the DataFile content",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string",
+            "example" : "df_projX_qwef994"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "The updated DataFile content",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DataFile"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "The DataFile object was sucessfully updated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DataFile"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The DataFile with the given ID wasn't found"
+          },
+          "422" : {
+            "description" : "The provided DataFile object was invalid"
+          }
+        }
+      }
+    },
+    "/datafile/{id}/columns/${column_idx}" : {
+      "put" : {
+        "tags" : [ "Import" ],
+        "summary" : "Updates the definitions and values of a column",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The ID of the datafile",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "column_idx",
+          "in" : "path",
+          "description" : "The index of the column",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "The updated DataFileColumn content",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DataFileColumn"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "The DataFileColumn object was sucessfully updated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DataFileColumn"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The DataFile with the given ID wasn't found, or the column idx does not exists"
+          },
+          "422" : {
+            "description" : "The provided DataFileColumn object was invalid"
+          }
+        }
+      }
+    },
+    "/import/uploadfile" : {
+      "post" : {
+        "tags" : [ "Obsolete" ],
+        "summary" : "upload data file",
+        "description" : "Uploads an user data file and returns an import id",
+        "parameters" : [ {
+          "name" : "uploaded_file",
+          "in" : "query",
+          "description" : "the user file to be uploaded",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "byte"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "File was successfully uploaded",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string",
+                  "description" : "import_id",
+                  "example" : "1234_202005032032"
+                }
+              }
+            }
+          },
+          "204" : {
+            "description" : "File is empty or missing"
+          },
+          "405" : {
+            "description" : "Invalid input"
+          }
+        }
+      }
+    },
+    "/import/missinginput" : {
+      "post" : {
+        "tags" : [ "Obsolete" ],
+        "summary" : "listener asking whether user inputs are required",
+        "description" : "waits for an user input to be filled",
+        "parameters" : [ {
+          "name" : "import_id",
+          "in" : "query",
+          "description" : "the import process id returned by uploadfile",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "All the data have been curated and are ready to be imported. Use /import/getcuratedata to obtain the curated data."
+          },
+          "202" : {
+            "description" : "No error yet. Data is being analyzed. Please wait."
+          },
+          "303" : {
+            "description" : "An user input is required. Use /import/userinput to send the missing information",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/missing_inputs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/import/userinput" : {
+      "post" : {
+        "tags" : [ "Obsolete" ],
+        "summary" : "send user inputs",
+        "description" : "send user inputs when required to curate the file",
+        "parameters" : [ {
+          "name" : "import_id",
+          "in" : "query",
+          "description" : "the import process id returned by uploadfile",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "step",
+          "in" : "query",
+          "description" : "the import process step for which these data are provided",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/import_steps"
+          }
+        }, {
+          "name" : "user_inputs",
+          "in" : "query",
+          "description" : "the inputs sent by the user",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : { }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "User inputs were correctly received",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/inline_response_200"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/import/getcurateddata" : {
+      "post" : {
+        "tags" : [ "Obsolete" ],
+        "summary" : "returns curated data",
+        "description" : "returns the data after curation and formatting",
+        "parameters" : [ {
+          "name" : "import_id",
+          "in" : "query",
+          "description" : "the import process id returned by uploadfile",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "data were sent successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ExportTable" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : "string",
+            "description" : "the web page to be scrapped in order to extract table data"
+          },
+          "options" : {
+            "type" : "array",
+            "description" : "the table options to be generated",
+            "items" : {
+              "$ref" : "#/components/schemas/TableOptions"
+            }
+          }
+        }
+      },
+      "TableOptions" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "type" : "string",
+            "description" : "the content to be displayed in the table",
+            "enum" : [ "All_tables", "Baseline_characteristics_only", "Results_only" ]
+          },
+          "p_values" : {
+            "type" : "array",
+            "description" : "the pvalues to be included in the table",
+            "items" : {
+              "$ref" : "#/components/schemas/Pvalues"
+            }
+          },
+          "statistics" : {
+            "type" : "array",
+            "description" : "the statistics to be included in the table",
+            "items" : {
+              "$ref" : "#/components/schemas/Statistics"
+            }
+          }
+        },
+        "description" : "the table options to be generated"
+      },
+      "Pvalues" : {
+        "type" : "object",
+        "properties" : {
+          "display_pvalues" : {
+            "type" : "boolean"
+          },
+          "baseline_pvalues" : {
+            "type" : "boolean"
+          },
+          "stat_test_name" : {
+            "type" : "boolean"
+          },
+          "legends_values" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Statistics" : {
+        "type" : "object",
+        "properties" : {
+          "effective_display" : {
+            "type" : "boolean",
+            "description" : "Show the effective for the variable",
+            "example" : true
+          },
+          "NumericVariable" : {
+            "type" : "array",
+            "description" : "options to show in case of numeric variables",
+            "items" : {
+              "$ref" : "#/components/schemas/NumericVariable"
+            }
+          },
+          "list_yes_no_vars" : {
+            "type" : "string",
+            "description" : "options to show in case of list or Yes_No variables",
+            "enum" : [ "n_percent", "n_only", "percent_only" ]
+          }
+        }
+      },
+      "NumericVariable" : {
+        "type" : "object",
+        "properties" : {
+          "NumVarOption" : {
+            "type" : "string",
+            "description" : "metrics to be shown in numeric variables",
+            "enum" : [ "Average_SD", "Median", "Median_Q1_Q3" ]
+          },
+          "Min_Max_display" : {
+            "type" : "boolean",
+            "description" : "Show the minimum and the maximum of the variable",
+            "example" : true
+          }
+        },
+        "description" : "options to show in case of numeric variables"
+      },
+      "DataSetVariable" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The unique identifier of this variable within the dataset. Will most likely be an unsigned integer, but we keep it a string to be a bit more future-proof",
+            "example" : "4235"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "A descriptive name for the variable",
+            "example" : "Variable X"
+          },
+          "groups" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataSetGroup"
+            }
+          }
+        }
+      },
+      "DataSetGroup" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "See DataSetVariable description",
+            "example" : "73545"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "A descriptive name for the group",
+            "example" : "Data Group YY"
+          },
+          "data" : {
+            "type" : "array",
+            "example" : [ [ 12.3, 23.4, 34.5 ], [ 23.42, 21.21 ], [ 1, 4, 8, 12 ] ],
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "type" : "number"
+              }
+            }
+          }
+        }
+      },
+      "DataSet" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for the data set that is provided at creation time",
+            "example" : "customerx_452badc0ffee23"
+          },
+          "access_token" : {
+            "type" : "string",
+            "description" : "A token used to secure access to the dataset and its associated data and ressources (eg: graphs)",
+            "writeOnly" : true,
+            "example" : "aexateHiG0pai8ik"
+          },
+          "premium" : {
+            "type" : "boolean",
+            "description" : "Whether the dataset is associated with a premium account or not.",
+            "example" : true
+          },
+          "variables" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataSetVariable"
+            }
+          }
+        }
+      },
+      "StatisticalTestQuery" : {
+        "type" : "object",
+        "properties" : {
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : true,
+            "description" : "Parameters specific to the request tests"
+          },
+          "dataset_id" : {
+            "type" : "string",
+            "description" : "The ID of the dataset to use"
+          },
+          "dataset_access_token" : {
+            "type" : "string",
+            "description" : "The security key to access the dataset"
+          },
+          "data" : {
+            "type" : "array",
+            "description" : "The array of data to perform the test on if dataset_it is not set",
+            "example" : [ 1.2, 2.3, 3.4, 4.5, 4.2 ],
+            "items" : {
+              "type" : "number"
+            }
+          }
+        }
+      },
+      "StatisticalTestName" : {
+        "type" : "string",
+        "enum" : [ "student", "fisher", "mannwhitney", "wilcoxon", "kruskalwallis", "logrank" ]
+      },
+      "StatisticalTestResult" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/StatisticalTestResult_inner"
+        }
+      },
+      "import_steps" : {
+        "type" : "string",
+        "enum" : [ "data_preprocessing", "identity_var_validation", "var_type_validation", "value_validation" ]
+      },
+      "DataFile" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "readOnly" : true,
+            "example" : "df_projX_fj3iwd"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/DataFileState"
+          },
+          "format" : {
+            "type" : "string",
+            "readOnly" : true,
+            "enum" : [ "text/csv" ]
+          },
+          "format_options" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/DataFileCSVOptions"
+            } ]
+          },
+          "columns" : {
+            "type" : "array",
+            "readOnly" : true,
+            "items" : {
+              "$ref" : "#/components/schemas/DataFileColumn"
+            }
+          }
+        }
+      },
+      "DataFileState" : {
+        "type" : "string",
+        "readOnly" : true,
+        "enum" : [ "created", "parsing", "identification", "cleaning", "ready" ]
+      },
+      "DataFileCSVOptions" : {
+        "type" : "object",
+        "properties" : {
+          "delimiter" : {
+            "type" : "string",
+            "example" : ";"
+          },
+          "datetime_format" : {
+            "type" : "string",
+            "description" : "DateTime format using the strptime format",
+            "example" : "%Y-%m-%d %H:%M"
+          },
+          "decimal_delimiter" : {
+            "type" : "string",
+            "example" : "."
+          }
+        }
+      },
+      "DataFileColumn" : {
+        "type" : "object",
+        "properties" : {
+          "column_type" : {
+            "$ref" : "#/components/schemas/DataFileColumnType"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/DataFileColumnState"
+          },
+          "guesses" : {
+            "type" : "array",
+            "description" : "An array of possible ColumnType alongside with their probability. Will only be present in the 'guessed' state\n",
+            "readOnly" : true,
+            "items" : {
+              "$ref" : "#/components/schemas/DataFileColumn_guesses"
+            }
+          },
+          "rows" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataFileCell"
+            }
+          }
+        }
+      },
+      "DataFileCell" : {
+        "type" : "object",
+        "properties" : {
+          "flags" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DataFileCellFlag"
+            }
+          },
+          "value" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "number"
+            }, {
+              "type" : "boolean"
+            } ]
+          }
+        }
+      },
+      "DataFileCellFlag" : {
+        "type" : "string",
+        "enum" : [ "missing", "invalid" ]
+      },
+      "DataFileColumnState" : {
+        "type" : "string",
+        "readOnly" : true,
+        "enum" : [ "unknown", "guessed", "identified", "cleaned" ]
+      },
+      "DataFileColumnType" : {
+        "type" : "string",
+        "enum" : [ "unknown", "ignored", "enum", "boolean", "number", "datetime", "event", "first_name", "last_name", "birth_date", "death_date", "inclusion_date", "last_consultation_date", "phone_number", "address", "health_insurance_number" ]
+      },
+      "Chart" : {
+        "required" : [ "dataset_access_token", "dataset_id", "kind", "resolution" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for this Chart",
+            "example" : "ch_projx_2hr22jf"
+          },
+          "kind" : {
+            "$ref" : "#/components/schemas/ChartType"
+          },
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : true,
+            "example" : {
+              "color_1" : "#F53",
+              "color_2" : "#00F"
+            }
+          },
+          "parameters_template" : {
+            "type" : "string",
+            "description" : "The name of a known parameters template set for this kind of chart",
+            "example" : "default"
+          },
+          "dataset_id" : {
+            "type" : "string",
+            "description" : "The ID of the dataset to graph"
+          },
+          "resolution" : {
+            "$ref" : "#/components/schemas/ChartResolution"
+          }
+        }
+      },
+      "ChartType" : {
+        "type" : "string",
+        "enum" : [ "boxplot", "dotplot", "scatterplot", "barchart", "histogram" ]
+      },
+      "ChartResolution" : {
+        "type" : "integer",
+        "enum" : [ 150, 300, 600 ]
+      },
+      "variable_types" : {
+        "type" : "string",
+        "enum" : [ "List", "Yes-no", "Numeric", "Event" ]
+      },
+      "identity_variables" : {
+        "type" : "string",
+        "enum" : [ "first_name", "last_name", "birth_date", "inclusion_date", "last_consultation_date", "phone_number", "address", "health_insurance_number" ]
+      },
+      "missing_inputs" : {
+        "type" : "object",
+        "properties" : {
+          "import_id" : {
+            "type" : "string",
+            "description" : "the import process id returned by uploadfile"
+          },
+          "step" : {
+            "$ref" : "#/components/schemas/import_steps"
+          },
+          "file_formatting" : {
+            "type" : "array",
+            "example" : [ "csv_delimiter", "decimal_delimiter" ],
+            "items" : {
+              "type" : "string",
+              "enum" : [ "csv_delimiter", "total_avg_line", "decimal_delimiter", "date_format" ]
+            }
+          },
+          "identity_variables" : {
+            "type" : "array",
+            "example" : [ "first_name", "last_name", "phone_number" ],
+            "items" : {
+              "$ref" : "#/components/schemas/identity_variables"
+            }
+          },
+          "missing_var_types" : {
+            "type" : "array",
+            "description" : "columns for which the variable type needs an user input",
+            "example" : [ ],
+            "items" : {
+              "type" : "integer"
+            }
+          },
+          "wrong_values" : {
+            "type" : "array",
+            "description" : "values which do not correspond to the type of the variable",
+            "items" : {
+              "$ref" : "#/components/schemas/missing_inputs_wrong_values"
+            }
+          }
+        }
+      },
+      "inline_response_200" : {
+        "type" : "object",
+        "properties" : {
+          "import_id" : {
+            "type" : "string",
+            "description" : "the import process id returned by uploadfile"
+          },
+          "step" : {
+            "$ref" : "#/components/schemas/import_steps"
+          },
+          "missing_inputs" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "inline_response_200_1" : {
+        "type" : "object",
+        "properties" : {
+          "categories" : {
+            "type" : "array",
+            "description" : "the categories of variables if any",
+            "items" : {
+              "$ref" : "#/components/schemas/inline_response_200_1_categories"
+            }
+          },
+          "variables" : {
+            "type" : "array",
+            "description" : "the name of the variables and the associated columnn_ids, and variable types",
+            "items" : {
+              "$ref" : "#/components/schemas/inline_response_200_1_variables"
+            }
+          },
+          "patients" : {
+            "type" : "array",
+            "description" : "the array with all the patients (one line by patient)",
+            "example" : "[ [Max, Miller, 2019/04/20, 96.4], [John, Snow, 2019/01/19, 78.9] ]",
+            "items" : {
+              "type" : "array",
+              "description" : "the curated values of a patient, in the same order as it appears in the original user file (column1, column2, column3)",
+              "items" : {
+                "oneOf" : [ {
+                  "type" : "string"
+                }, {
+                  "type" : "number"
+                } ]
+              }
+            }
+          }
+        }
+      },
+      "StatisticalTestResult_inner" : {
+        "type" : "object",
+        "properties" : {
+          "pvalue" : {
+            "type" : "number",
+            "description" : "The p-value of the test"
+          },
+          "statistic" : {
+            "type" : "number",
+            "description" : "the statistic of the test (Z, T, ...)"
+          }
+        }
+      },
+      "DataFileColumn_guesses" : {
+        "type" : "object",
+        "properties" : {
+          "probability" : {
+            "type" : "number",
+            "description" : "The probabibility of this column type",
+            "example" : 0.85
+          },
+          "column_type" : {
+            "$ref" : "#/components/schemas/DataFileColumnType"
+          }
+        }
+      },
+      "missing_inputs_values" : {
+        "type" : "object",
+        "properties" : {
+          "line_id" : {
+            "type" : "integer"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "missing_inputs_wrong_values" : {
+        "type" : "object",
+        "properties" : {
+          "column_id" : {
+            "type" : "integer",
+            "description" : "the column index for which the value(s) is(are) wrong"
+          },
+          "column_name" : {
+            "type" : "string",
+            "description" : "the column name for which the value(s) is(are) wrong"
+          },
+          "values" : {
+            "type" : "array",
+            "description" : "for each column, the values to be corrected and the corresponding line id",
+            "items" : {
+              "$ref" : "#/components/schemas/missing_inputs_values"
+            }
+          }
+        }
+      },
+      "inline_response_200_1_categories" : {
+        "type" : "object",
+        "properties" : {
+          "category_id" : {
+            "type" : "integer",
+            "description" : "an id used to identify categories"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "the name of the category as it appears in the user file"
+          }
+        }
+      },
+      "inline_response_200_1_variables" : {
+        "type" : "object",
+        "properties" : {
+          "column_id" : {
+            "type" : "integer",
+            "description" : "the index of the column where the variable is located"
+          },
+          "is_imported" : {
+            "type" : "boolean",
+            "description" : "if this variable must be imported or not"
+          },
+          "variable_name" : {
+            "type" : "string",
+            "description" : "the name of the variable as it appears in the user original file",
+            "example" : "patient_age, BirthDate"
+          },
+          "variable_type" : {
+            "type" : "string",
+            "description" : "returns the type of the variable as predicted or provided by the user, either one of the 4 pre-defined types or an identity variable type",
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/variable_types"
+            }, {
+              "$ref" : "#/components/schemas/identity_variables"
+            } ]
+          },
+          "category_id" : {
+            "type" : "integer",
+            "description" : "if the variable is associated with a category, the corresponding category_id is returned, else 0"
+          }
+        }
+      }
+    },
+    "responses" : {
+      "401" : {
+        "description" : "Unauthorized access"
+      }
+    }
+  }
+}
